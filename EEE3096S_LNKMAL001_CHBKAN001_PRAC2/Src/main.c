@@ -266,7 +266,11 @@ static void TIM16_Enable(void){
 	TIM16->CR1 |= TIM_CR1_CEN;    //Enable Counter for TIM16
 }
 void TIM16_IRQHandler(void){
+<<<<<<< HEAD
 	__asm("CPSID I");
+=======
+	__asm volatile("CPSID I");  //disable all global interrupts
+>>>>>>> 284919fc6851dc25180d7fe961e9586976208a77
 	if(TIM16->SR & TIM_SR_UIF){
 		TIM16->SR &= 0xFFFE;  //Clear Update Interrupt Flag
 		uint8_t data = read_from_address(address);
@@ -287,6 +291,7 @@ void EXTI0_1_IRQHandler(void){
 	EXTI->PR |= 1;
 	RCC->APB2RSTR |= 1<<17;   //Reset TIM16 Registers before modifying ARR
 	RCC->APB2RSTR &= ~1<<17;
+	__asm volatile("CPSID I");  //Disable all global interrupts
 	if(arr_value == 999){
 		arr_value= 499;
 	}
