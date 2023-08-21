@@ -46,7 +46,7 @@ static void TIM16_Enable(void);
 static uint8_t patterns[] = {0xAA,0x55,0xCC,0x33,0xF0,0x0F};
 
 static uint16_t address = 0x0000;
-static uint32_t arr_value = 999;
+uint16_t arr_value = 999;
 
 int main(void)
 {
@@ -260,13 +260,13 @@ static uint8_t read_from_address(uint16_t address) {
 static void TIM16_Enable(void){
 	RCC->APB2ENR |= RCC_APB2ENR_APB2TIM16EN;
 	TIM16->PSC = 0x1F3F;   //Setting TIM16 freq to 1kHz
-	TIM16->ARR = 0x3E7;    //1s delay
+	TIM16->ARR = arr_value;    //1s delay
 	TIM16->DIER |= TIM_DIER_UIE;  //Update Interrupt flag set
 	NVIC_IRQEnable(TIM16_IRQn);   //Enable interrupt for TIM16
 	TIM16->CR1 |= TIM_CR1_CEN;    //Enable Counter for TIM16
 }
 void TIM16_IRQHandler(void){
-	__asm volatile("CPSID I");  //dusable all global interrupts
+	__asm("CPSID I");
 	if(TIM16->SR & TIM_SR_UIF){
 		TIM16->SR &= 0xFFFE;  //Clear Update Interrupt Flag
 		uint8_t data = read_from_address(address);
@@ -281,19 +281,19 @@ void TIM16_IRQHandler(void){
 	}
 	address++;
 	address%=6;
-	__asm volatile("CPSIE I"); //Enable all global interrupts
+	__asm("CPSIE I");
 }
 void EXTI0_1_IRQHandler(void){
-	__asm volatile("CPSID I");  //Diable all global interrupts
-	GPIO_ISRHandler(GPIO_PIN0);  //Clear Corresponding Pending Register Bit
+	EXTI->PR |= 1;
+	RCC->APB2RSTR |= 1<<17;   //Reset TIM16 Registers before modifying ARR
+	RCC->APB2RSTR &= ~1<<17;
 	if(arr_value == 999){
-		TIM16->ARR = 499;
-		arr_value = 499;
+		arr_value= 499;
 	}
 	else{
-		TIM16->ARR = 999;
-		arr_value = 999;
+		arr_value= 999;
 	}
-	__asm volatile("CPSIE I"); //Enable all global interrupts
+	TIM16_Enable();    //Re-enable TIM16
+
 
 }
