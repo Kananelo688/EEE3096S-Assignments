@@ -255,7 +255,7 @@ void TIM16_IRQHandler(void){
 		TIM16->SR &= 0xFFFE;  //Clear Update Interrupt Flag
 		uint8_t data = read_from_address(address);
 		if (data!=patterns[address]){
-			GPIOB->ODR = 0x0001;  //Wrong pattern
+			GPIOB->ODR = 0x01;  //Wrong pattern
 		}
 
 		else{
