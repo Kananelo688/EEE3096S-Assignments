@@ -266,11 +266,8 @@ static void TIM16_Enable(void){
 	TIM16->CR1 |= TIM_CR1_CEN;    //Enable Counter for TIM16
 }
 void TIM16_IRQHandler(void){
-<<<<<<< HEAD
-	__asm("CPSID I");
-=======
+
 	__asm volatile("CPSID I");  //disable all global interrupts
->>>>>>> 284919fc6851dc25180d7fe961e9586976208a77
 	if(TIM16->SR & TIM_SR_UIF){
 		TIM16->SR &= 0xFFFE;  //Clear Update Interrupt Flag
 		uint8_t data = read_from_address(address);
@@ -284,14 +281,13 @@ void TIM16_IRQHandler(void){
 		}
 	}
 	address++;
-	address%=6;
-	__asm("CPSIE I");
+	address%=6;  //Values are store at 0x0000 to 0x0005
+	__asm volatile("CPSIE I");   //enable all global interrupts
 }
 void EXTI0_1_IRQHandler(void){
-	EXTI->PR |= 1;
+	EXTI->PR |= 1;            //Clear the Pending bit as Interrupt is being serviced
 	RCC->APB2RSTR |= 1<<17;   //Reset TIM16 Registers before modifying ARR
 	RCC->APB2RSTR &= ~1<<17;
-	__asm volatile("CPSID I");  //Disable all global interrupts
 	if(arr_value == 999){
 		arr_value= 499;
 	}
