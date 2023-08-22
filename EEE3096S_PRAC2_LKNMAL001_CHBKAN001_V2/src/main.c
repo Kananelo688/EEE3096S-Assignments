@@ -14,7 +14,7 @@
 #define READ 0b00000011
 #define WRITE 0b00000010
 
-static uint8_t patterns[] = {0xAA,0x55,0xCC,0x33,0xF0,0x0F};
+
 
 void GPIO_Init(void);
 void RCC_Config(void);
@@ -24,7 +24,9 @@ static void write_to_address(uint16_t address, uint8_t data);
 static uint8_t read_from_address(uint16_t address);
 void delay(uint32_t delay_value);
 
+static uint8_t patterns[] = {0xAA,0x55,0xCC,0x33,0xF0,0x0F};
 static uint16_t address = 0x0000;
+/*@arr_value*/
 uint16_t arr_value = 999;
 
 int main(void){
@@ -32,8 +34,8 @@ int main(void){
     GPIO_Init();
     init_spi();
     for (int i=0; i<6; ++i){
-    write_to_address(address, patterns[i]);
-    address++;
+		write_to_address(address, patterns[i]);
+		address++;
 
 	}
 	address =0;
@@ -71,7 +73,12 @@ void RCC_Config(void){
     RCC->APB2ENR |= 0x01;  //Enable clock for SYSCFG
 
 }
-
+/*
+ *@Brief: Initialises PB0-PB7, PB12 in output MOde, PB13-PB15 Alternate Function for SPI2
+ *        PA0 in falling interrupt Trigger
+ *@Param: None
+ *@Retval: None
+ */
 void GPIO_Init(void){
     GPIOB->MODER |=0x5555;   //PB0-PB7 output (D0-D7) 
     GPIOB->MODER |=(1U<<24);  //PB12 output !SS pin
@@ -89,10 +96,16 @@ void GPIO_Init(void){
     EXTI->RTSR &= ~0x01;            //Disable Rising Trigger Interrupt
     EXTI->FTSR |= 0x01;             //Enable Falling Trigger Interrupt for PA0
 
-    NVIC->ISER |= (1U<<EXTI0_1_IRQn);  //Enable Interrupt for EXTIO0_1
+    NVIC->ISER |= (1U<<EXTI0_1_IRQn);  //Enable Interrupt for EXTI0_1
 
 }
 
+/*
+ *@Brief: Generates delay in microseconds using SysTick timer
+ *@Param: delay_value, number of microseconds for delay
+ *@Retval: None
+ *@Note:   This is valid for System clock running at 8MHz
+ */
 void delay(uint32_t delay_value){
     SysTick->RVR = (MICRO_DELAY*delay_value-1)&0xFFFFFF;  //set reload value
     SysTick->CVR  = 0 ; //Clear current value
@@ -106,7 +119,11 @@ void delay(uint32_t delay_value){
     SysTick->CVR = 0;
 
 }
-
+/*
+ *@Brief: Initialises TIM16 counter in interrupt mode for delay value provided by @arr_value;
+ *@Param: None
+ *@Retval: None
+ */
 static void TIM16_Enable(void){
         TIM16->PSC = 0x1F3F;   //Setting TIM16 freq to 1kHz
         TIM16->ARR = arr_value;    //1s delay
@@ -115,17 +132,28 @@ static void TIM16_Enable(void){
         TIM16->CR1 |= TIM_CR1_CEN;    //Enable Counter for TIM16
 }
 
+/*
+ *@Brief: Initialiases SPI2 in Master Mode @500kHz, using software slave management, using SPI Mode 00
+ *@Param:  None
+ *@Retval: None
+ *@Note:   SPI speed is 500kHz since APB clock is 8MHz, if APB value is altered, set bit[5:3] correctly in CR1
+ */
 static void init_spi(void)
 {
-    SPI2->CR1 |= (0x3U<<3); 					            //Set Baud to fpclk / 16
+    SPI2->CR1 |= (0x3U<<3); 					           //Set Baud to fpclk / 16
     SPI2->CR1 |= SPI_CR1_MSTR; 							// Set to master mode
     SPI2->CR1 |= SPI_CR1_SSM;                             // Software slave management
     SPI2->CR1 |= SPI_CR1_SSI;                             //Slave internal select enable
-    SPI2->CR2 |= 1<<12; 									// Set RX threshold to be 8 bits
-    SPI2->CR2 |= SPI_CR2_FRXTH; 	                        // Set to 8-bit mode
+    SPI2->CR2 |= SPI_CR2_FRXTH; 	                        // RXNE event generated after 8 bits recieved
+	SPI2->CR2 |= (7<<8);                                  //Data Width 8 bits
     SPI2->CR1 |= SPI_CR1_SPE; 							// Enable the SPI peripheral
 }
-
+/*
+ *@Brief: Transmit (using blocking mode)data to specified address to EEPROM 25LC640A 
+ *@Param: address, address of EEPROM to store at
+ *@Param: data, 8bits data to store at specified address
+ *@Retval: None
+ */ 
 static void write_to_address(uint16_t address, uint8_t data){
     uint8_t dummy; // Junk from the DR
 
@@ -159,14 +187,18 @@ static void write_to_address(uint16_t address, uint8_t data){
 	while ((SPI2->SR & SPI_SR_RXNE) == 0); // Hang while RX is empty
 	dummy = SPI2->DR;
 	GPIOB->ODR |= (1<<12);   //Pull CS high
-	 delay(5000);  //wait for 5ms
+	 delay(50000);  //wait for 50ms
 }
-
+/*
+ *@Brief: Read 8 bit data as EEEPROM Specified address
+ *@Param: address, address of EEPROM to read from
+ *@Retval: data at a specified address
+ */
 static uint8_t read_from_address(uint16_t address){
     uint8_t dummy; // Junk from the DR
 
 	// Send the read instruction
-	GPIOB->ODR &=~(0x1);   //Pull  CS low
+	GPIOB->ODR &=~(0x1<<12);   //Pull  CS low
     delay(1);
 	*((uint8_t*)(&SPI2->DR)) = READ;
 	while ((SPI2->SR & SPI_SR_RXNE) == 0); 		// Hang while RX is empty
@@ -190,10 +222,16 @@ static uint8_t read_from_address(uint16_t address){
 	return dummy;								              // Return read data
 }
 
+/*
+ *@Brief: Switch TIM16 delay for 1s->0.5s or vice versa
+ *@Param: None
+ *@Retval: None
+ */
 void EXTI0_1_IRQHandler(void){
 	EXTI->PR |= 1;            //Clear the Pending bit as Interrupt is being serviced
 	RCC->APB2RSTR |= 1<<17;   //Reset TIM16 Registers before modifying ARR
 	RCC->APB2RSTR &= ~1<<17;
+	/*Change ARR value*/
 	if(arr_value == 999){
 		arr_value= 499;
 	}
@@ -204,9 +242,14 @@ void EXTI0_1_IRQHandler(void){
 
 
 }
-
+/*
+ *@Brief: Displays read from EEPROM stored at address 0x0000 to 0x0005 on PB0-PB7
+ *        If data is not correct: 0x01 set to PB0-PB7
+ *@Param: None
+ *@Retval: None
+ *@Note: Global interrupts are disabled so that higher priority interrupts do not preempt Interrupt handle in this subroutine(Except for exceptions)
+ */
 void TIM16_IRQHandler(void){
-
 	__asm volatile("CPSID I");  //disable all global interrupts
 	if(TIM16->SR & TIM_SR_UIF){
 		TIM16->SR &= 0xFFFE;  //Clear Update Interrupt Flag
@@ -220,7 +263,7 @@ void TIM16_IRQHandler(void){
 			GPIOB->ODR = data;  //Correct bit pattern
 		}
 	}
-	address++;
+	address++;  //increment the address
 	address%=6;  //Values are store at 0x0000 to 0x0005
 	__asm volatile("CPSIE I");   //enable all global interrupts
 }
