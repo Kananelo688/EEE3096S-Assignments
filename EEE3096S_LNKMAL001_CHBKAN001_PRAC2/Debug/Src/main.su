@@ -6,4 +6,4 @@
 ../Src/main.c:232:16:read_from_address	32	static
 ../Src/main.c:260:13:TIM16_Enable	8	static
 ../Src/main.c:268:6:TIM16_IRQHandler	24	static,ignoring_inline_asm
-../Src/main.c:286:6:EXTI0_1_IRQHandler	8	static
+../Src/main.c:287:6:EXTI0_1_IRQHandler	8	static

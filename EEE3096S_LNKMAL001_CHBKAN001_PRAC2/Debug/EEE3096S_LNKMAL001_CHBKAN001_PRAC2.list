@@ -1593,7 +1593,8 @@ void TIM16_IRQHandler(void){
  8000a7c:	b590      	push	{r4, r7, lr}
  8000a7e:	b083      	sub	sp, #12
  8000a80:	af00      	add	r7, sp, #0
-	__asm("CPSID I");
+
+	__asm volatile("CPSID I");  //disable all global interrupts
  8000a82:	b672      	cpsid	i
 	if(TIM16->SR & TIM_SR_UIF){
  8000a84:	4b1c      	ldr	r3, [pc, #112]	; (8000af8 <TIM16_IRQHandler+0x7c>)
@@ -1649,7 +1650,7 @@ void TIM16_IRQHandler(void){
  8000ad2:	b29a      	uxth	r2, r3
  8000ad4:	4b0a      	ldr	r3, [pc, #40]	; (8000b00 <TIM16_IRQHandler+0x84>)
  8000ad6:	801a      	strh	r2, [r3, #0]
-	address%=6;
+	address%=6;  //Values are store at 0x0000 to 0x0005
  8000ad8:	4b09      	ldr	r3, [pc, #36]	; (8000b00 <TIM16_IRQHandler+0x84>)
  8000ada:	881b      	ldrh	r3, [r3, #0]
  8000adc:	2106      	movs	r1, #6
@@ -1659,7 +1660,7 @@ void TIM16_IRQHandler(void){
  8000ae6:	b29a      	uxth	r2, r3
  8000ae8:	4b05      	ldr	r3, [pc, #20]	; (8000b00 <TIM16_IRQHandler+0x84>)
  8000aea:	801a      	strh	r2, [r3, #0]
-	__asm("CPSIE I");
+	__asm volatile("CPSIE I");   //enable all global interrupts
  8000aec:	b662      	cpsie	i
 }
  8000aee:	46c0      	nop			; (mov r8, r8)
@@ -1677,14 +1678,14 @@ void TIM16_IRQHandler(void){
 void EXTI0_1_IRQHandler(void){
  8000b0c:	b580      	push	{r7, lr}
  8000b0e:	af00      	add	r7, sp, #0
-	EXTI->PR |= 1;
+	EXTI->PR |= 1;            //Clear the Pending bit as Interrupt is being serviced
  8000b10:	4b12      	ldr	r3, [pc, #72]	; (8000b5c <EXTI0_1_IRQHandler+0x50>)
  8000b12:	695a      	ldr	r2, [r3, #20]
  8000b14:	4b11      	ldr	r3, [pc, #68]	; (8000b5c <EXTI0_1_IRQHandler+0x50>)
  8000b16:	2101      	movs	r1, #1
  8000b18:	430a      	orrs	r2, r1
  8000b1a:	615a      	str	r2, [r3, #20]
-	RCC->APB2RSTR |= 1<<17;
+	RCC->APB2RSTR |= 1<<17;   //Reset TIM16 Registers before modifying ARR
  8000b1c:	4b10      	ldr	r3, [pc, #64]	; (8000b60 <EXTI0_1_IRQHandler+0x54>)
  8000b1e:	68da      	ldr	r2, [r3, #12]
  8000b20:	4b0f      	ldr	r3, [pc, #60]	; (8000b60 <EXTI0_1_IRQHandler+0x54>)
@@ -1718,7 +1719,7 @@ void EXTI0_1_IRQHandler(void){
  8000b4c:	4a06      	ldr	r2, [pc, #24]	; (8000b68 <EXTI0_1_IRQHandler+0x5c>)
  8000b4e:	801a      	strh	r2, [r3, #0]
 	}
-	TIM16_Enable();
+	TIM16_Enable();    //Re-enable TIM16
  8000b50:	f7ff ff6a 	bl	8000a28 <TIM16_Enable>
 
 
