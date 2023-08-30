@@ -1,0 +1,7 @@
+21:26:18 **** Clean-only build of configuration Default for project WorkPackage2 ****
+make clean 
+make: *** No rule to make target 'clean'.  Stop.
+"make clean" terminated with exit code 2. Build might be incomplete.
+
+21:26:19 Build Failed. 1 errors, 0 warnings. (took 296ms)
+

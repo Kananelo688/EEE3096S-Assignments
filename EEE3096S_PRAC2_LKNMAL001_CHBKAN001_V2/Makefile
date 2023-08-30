@@ -24,7 +24,7 @@ $(OBJS): %.o: %.c
 	$(CC) $(CFLAGS) $(INCLUDES)-c $^ $@
 
 clean:
-	rm  -rf *.o *.elf
+	rm  -rf *.o *.elf *.map
 
 load:
 	openocd -f interface/stlink.cfg  -f target/stm32f0x.cfg
