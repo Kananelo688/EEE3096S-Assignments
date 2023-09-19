@@ -59,8 +59,8 @@ all: main-build
 main-build: EEE3096S_LNKMAL001_CHBKAN001_PRAC2.elf secondary-outputs
 
 # Tool invocations
-EEE3096S_LNKMAL001_CHBKAN001_PRAC2.elf EEE3096S_LNKMAL001_CHBKAN001_PRAC2.map: $(OBJS) $(USER_OBJS) C:\Users\malef\Desktop\Embedded\EEE3096S-Embedded-Systems-II\EEE3096S_LNKMAL001_CHBKAN001_PRAC2\STM32F051C6TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "EEE3096S_LNKMAL001_CHBKAN001_PRAC2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0 -T"C:\Users\malef\Desktop\Embedded\EEE3096S-Embedded-Systems-II\EEE3096S_LNKMAL001_CHBKAN001_PRAC2\STM32F051C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="EEE3096S_LNKMAL001_CHBKAN001_PRAC2.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+EEE3096S_LNKMAL001_CHBKAN001_PRAC2.elf EEE3096S_LNKMAL001_CHBKAN001_PRAC2.map: $(OBJS) $(USER_OBJS) /home/chabeli/Documents/EEE3096S-Embedded-Systems-II/EEE3096S_LNKMAL001_CHBKAN001_PRAC2/STM32F051C6TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "EEE3096S_LNKMAL001_CHBKAN001_PRAC2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0 -T"/home/chabeli/Documents/EEE3096S-Embedded-Systems-II/EEE3096S_LNKMAL001_CHBKAN001_PRAC2/STM32F051C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="EEE3096S_LNKMAL001_CHBKAN001_PRAC2.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
