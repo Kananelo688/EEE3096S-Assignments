@@ -84,7 +84,7 @@ int main(void)
   /* USER CODE BEGIN 1 */
   char lcd_value[5];
   for(uint8_t i=0; i<5; i++){
-    lcd_value[i] = '\0'; /*nullify the array*/
+    lcd_value[i] = '\0'; /*set all initial values to null character*/
   }
   /* USER CODE END 1 */
 
