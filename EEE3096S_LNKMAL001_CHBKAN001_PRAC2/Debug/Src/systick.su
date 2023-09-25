@@ -1,2 +1,0 @@
-../Src/systick.c:11:13:pollflag	8	static
-../Src/systick.c:22:6:SysTick_Init	24	static

@@ -1,9 +1,0 @@
-../Src/main.c:51:5:main	2
-../Src/main.c:80:13:RCCConfig	3
-../Src/main.c:94:13:GPIO_Config	1
-../Src/main.c:158:13:init_spi	1
-../Src/main.c:195:13:write_to_address	6
-../Src/main.c:232:16:read_from_address	5
-../Src/main.c:260:13:TIM16_Enable	1
-../Src/main.c:268:6:TIM16_IRQHandler	3
-../Src/main.c:287:6:EXTI0_1_IRQHandler	2

@@ -1,5 +1,0 @@
-../Src/nvic.c:12:6:NVIC_IRQEnable	16	static
-../Src/nvic.c:18:6:NVIC_IRQDisable	16	static
-../Src/nvic.c:22:6:NVIC_IRQSetPending	16	static
-../Src/nvic.c:27:6:NVIC_IRQClearPending	16	static
-../Src/nvic.c:31:6:NVIC_IRQSetPriority	32	static
