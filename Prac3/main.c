@@ -53,7 +53,8 @@ uint32_t adc_val;
 
 uint32_t debounceLength    = 50;           /*debounce wait time*/
 uint32_t prevticks   =      0;
-uint32_t currticks = 0;
+uint32_t currticks;
+ uint8_t count; /*number of digits written to lcd*/
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -67,7 +68,7 @@ void EXTI0_1_IRQHandler(void);
 void writeLCD(char *char_in);
 uint32_t pollADC(void);
 uint32_t ADCtoCCR(uint32_t adc_val);
- uint8_t count; /*number of values written to the led*/
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -84,7 +85,7 @@ int main(void)
   /* USER CODE BEGIN 1 */
   char lcd_value[5];
   for(uint8_t i=0; i<5; i++){
-    lcd_value[i] = '\0'; /*set all initial values to null character*/
+    lcd_value[i] = '\0'; /*nullify the array*/
   }
   /* USER CODE END 1 */
 
@@ -125,7 +126,6 @@ int main(void)
 	// ADC to LCD; TODO: Read POT1 value and write to LCD
   adc_val = pollADC();
   CCR = ADCtoCCR(adc_val);
- count = 0;
  /*do while to make sure that if adc_val is 0, loop is executed once*/
   do{
       /*ascii code for 0 is 48*/
@@ -453,4 +453,3 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
